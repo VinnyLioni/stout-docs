@@ -1,5 +1,4 @@
 <script setup lang="ts">
-    import sideOption from '../components/layout/sideOption.vue'
 </script>
 
 <template>
@@ -8,10 +7,10 @@
             <span class="text-slate-100">Stout</span>
             <span class="font-extrabold text-yellow-300">Docs</span>
         </div>
-        <div class="ml-auto flex flex-col justify-around">
+        <!-- <div class="ml-auto flex flex-col justify-around">
             <div class="content-[''] bg-slate-100 w-[2rem] h-[3px] rounded-md"></div>
             <div class="content-[''] bg-slate-100 w-[2rem] h-[3px] rounded-md"></div>
             <div class="content-[''] bg-slate-100 w-[2rem] h-[3px] rounded-md"></div>
-        </div>
+        </div> -->
     </header>
 </template>
