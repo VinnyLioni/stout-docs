@@ -4,11 +4,25 @@
     import { useBarStore } from '../../store/barcode'
 
     const barStore = useBarStore()
+
+    const newCodeInserted = ref<boolean>(false)
+
+    const clearNewCodeInserted = () => {
+        setTimeout(() => {
+            newCodeInserted.value=false
+        }, 1000)
+    }
       
     const onDetect = (detectedCodes: any) => {
         if (detectedCodes.length > 0) {
             const firstCode = detectedCodes[0].rawValue
-            barStore.codebar=firstCode
+            barStore.codebar = firstCode
+            console.log('codigos', barStore.codebar)
+            barStore.codeHistory.unshift(firstCode)
+            newCodeInserted.value=true
+            clearNewCodeInserted()
+            barStore.showToast('success', `Código ${barStore.codebar} lido com sucesso.`)
+            console.log(barStore.codeHistory)
         } else {
             barStore.codebar=''
         }
@@ -16,92 +30,28 @@
     
     const selectedDevice = ref<any>(null)
     const devices = ref<any>([])
-    // const changeCamera = ref<boolean>(false)
-
-    // const selectedDevice = ref<any>(null)
-    // const frontCameras = ref<any[]>([])
-    // const backCameras = ref<any[]>([])
-    // const error = ref('')
-    // const facingMode = ref<'user' | 'environment'>('environment')
-
-    // const facingMode = ref('environment')
-
-    // const switchCamera = () => {
-    //     switch (facingMode.value) {
-    //         case 'environment': facingMode.value='user'
-    //             break
-    //         case 'user': facingMode.value='environment'
-    //             break
-    //     }
-    // }
-    
-    // onMounted(async () => {
-    //     try {
-    //     const mediaDevices = await navigator.mediaDevices.enumerateDevices()
-    //     console.log(mediaDevices)
-    //     mediaDevices.forEach(device => {
-    //         if (device.kind === 'videoinput') {
-    //             if (device.label.toLowerCase().includes('front')) {
-    //                 frontCameras.value.push(device)
-    //                 console.log('frontais', device)
-    //             } else if (device.label.toLowerCase().includes('back')) {
-    //                 backCameras.value.push(device)
-    //                 console.log('traseiras', device)
-    //             }
-    //         }
-    //     })
-    //     // Selecionar uma câmera padrão
-    //     if (frontCameras.value.length > 0) {
-    //         selectedDevice.value = frontCameras.value[0]
-    //     } else if (backCameras.value.length > 0) {
-    //         selectedDevice.value = backCameras.value[0]
-    //     }
-    // } catch (err: any) {
-    //     error.value = 'Erro ao enumerar dispositivos: ' + err.message
-    // }
-    // })
 
     onMounted(async () => {
-    const mediaDevices = await navigator.mediaDevices.enumerateDevices()
-    const videoDevices = mediaDevices.filter(({ kind }) => kind === 'videoinput')
+        const mediaDevices = await navigator.mediaDevices.enumerateDevices()
+        const videoDevices = mediaDevices.filter(({ kind }) => kind === 'videoinput')
 
-    videoDevices.forEach((device: any, index) => {
-        // Adiciona um índice ao objeto do dispositivo
-        ;;
-        device.index = index
-        devices.value.push(device)
+        videoDevices.forEach((device: any, index) => {
+            // Adiciona um índice ao objeto do dispositivo
+            ;;
+            device.index = index
+            devices.value.push(device)
+        })
+
+        if (devices.value.length > 0) {
+            selectedDevice.value = devices.value[0]
+        }
+
+        if (devices.value.length > 1) {
+            selectedDevice.value = devices.value[3]
+        }
+        console.log(devices)
     })
 
-    if (devices.value.length > 0) {
-        selectedDevice.value = devices.value[0]
-    }
-
-    if (devices.value.length > 1) {
-        selectedDevice.value = devices.value[3]
-    }
-    console.log(devices)
-})
-
-    // onMounted(async () => {
-    //     const mediaDevices = await navigator.mediaDevices.enumerateDevices()
-    //     const videoDevices = mediaDevices.filter(({ kind }) => kind === 'videoinput')
-
-    //     videoDevices.forEach((device, index) => {
-    //         // Aqui você pode definir um nome personalizado para o dispositivo com base em suas características
-    //         const customName = `Camera ${index + 1}`
-    //         devices.value.push({ ...device, customName })
-    //     })
-
-    //     if (devices.value.length > 0) {
-    //         selectedDevice.value = devices.value[0]
-    //         console.log(devices.value)
-    //     }
-
-    //     if (devices.value.length > 1) {
-    //         selectedDevice.value = devices.value[3]
-    //     }
-    // })
-      
     const paintOutline = (detectedCodes: any, ctx: any) => {
         for (const detectedCode of detectedCodes) {
         const [firstPoint, ...otherPoints] = detectedCode.cornerPoints
@@ -162,27 +112,27 @@
     const trackFunctionSelected = ref(trackFunctionOptions[1])
   
     const barcodeFormats = ref<any>({
-        aztec: true,
+        aztec: false,
         code_128: true,
-        code_39: true,
-        code_93: true,
-        codabar: true,
-        databar: true,
-        databar_expanded: true,
-        data_matrix: true,
-        dx_film_edge: true,
+        code_39: false,
+        code_93: false,
+        codabar: false,
+        databar: false,
+        databar_expanded: false,
+        data_matrix: false,
+        dx_film_edge: false,
         ean_13: true,
-        ean_8: true,
-        itf: true,
-        maxi_code: true,
-        micro_qr_code: true,
-        pdf417: true,
+        ean_8: false,
+        itf: false,
+        maxi_code: false,
+        micro_qr_code: false,
+        pdf417: false,
         qr_code: true,
-        rm_qr_code: true,
-        upc_a: true,
-        upc_e: true,
-        linear_codes: true,
-        matrix_codes: true
+        rm_qr_code: false,
+        upc_a: false,
+        upc_e: false,
+        linear_codes: false,
+        matrix_codes: false
     })
 
     const selectedBarcodeFormats = computed(() => {
@@ -218,13 +168,13 @@
 
 <template>
     <div class="flex flex-col justify-center items-center">
-    <select v-model="selectedDevice" class="p-4 w-full bg-slate-600 text-slate-100 font-semibold tracking-tighter rounded-sm outline-none duration-200 ease-in-out">
+    <select v-model="selectedDevice" class="p-4 w-full bg-slate-600 text-slate-100 font-semibold tracking-tighter rounded-tr-sm rounded-tl-sm outline-none duration-200 ease-in-out">
         <option v-for="device in devices" :key="device.label" :value="device" class="text-center">
             {{ `Camera ${device.index + 1}` }}
         </option>
     </select>  
       <p class="error">{{ error }}</p>
-      <div class="w-full min-h-96 flex flex-col justify-center items-center overflow-hidden">
+      <div class="w-full min-h-96 flex flex-col justify-start items-center overflow-hidden rounded-bl-sm rounded-br-sm border-solid border-slate-600 border-2">
         <qrcode-stream
           :constraints="{ deviceId: selectedDevice.deviceId }"
           :track="trackFunctionSelected.value"
@@ -237,6 +187,27 @@
             Não há Câmeras disponíveis nesse dispositivo.
         </p>
         <!-- <button class="p-4 mt-2 w-full bg-slate-600 text-slate-100">Alterar camera</button> -->
+      </div>
+      <table class="w-full mt-4">
+        <thead class="w-full flex">
+            <tr class="w-full bg-slate-600 text-slate-100 rounded-tr-sm rounded-tl-sm py-4 flex justify-center">
+                <!-- <th class="mr-auto w-2/12">Seq.</th> -->
+                <th class="w-full text-sm">Lista de Códigos</th>
+            </tr>
+        </thead>
+        <tbody class="full flex flex-col border-solid border-slate-600 border-[1px] rounded-bl-sm rounded-br-sm">
+            <tr v-if="barStore.codeHistory.length <= 0" class="flex justify-center text-sm text-slate-600 py-2">
+                <td>Nenhuma leitura feita.</td>
+            </tr>
+            <tr v-else v-for="(item, index) in barStore.codeHistory" :key="index" class="flex justify-start duration-200 ease-in" :class="newCodeInserted && index === 0 ? 'bg-green-600 text-slate-100' : ''">
+                <td class="text-xs px-4 py-2 border-t-2 w-full4">{{ item }}</td>
+            </tr>
+        </tbody>
+      </table>
+      <div class="pt-10 w-full flex flex-row justify-center">
+        <button class="bg-green-600 text-slate-100 px-6 py-2 rounded-sm font-semibold tracking-tighter w-full">
+            Enviar Códigos
+        </button>
       </div>
     </div>
   </template>

@@ -6,7 +6,7 @@
 <template>
   <div class="flex flex-col h-full w-full">
     <navBar />
-    <div class="flex flex-row items-center justify-center p-6 rounded-md">
+    <div class="flex flex-row items-center justify-center px-1 rounded-md">
       <MainContent />
     </div>
   </div>
