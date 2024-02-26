@@ -1,9 +1,6 @@
 <script setup lang="ts">
-    import { useBarStore } from '../store/barcode';
     import BarCode from './layout/BarCode.vue';
-    // import CaptureCode from './layout/CaptureCode.vue'
-
-    const barStore = useBarStore()
+    // import BarCode2 from './layout/BarCode2.vue';
 
 </script>
 
@@ -15,14 +12,8 @@
                 <span class="ml-2 text-lg font-semibold tracking-tighter">Leitor de Código de Barras</span>
             </div>
             <div class="flex flex-col items-around pb-10 justify-center">
-                <!-- <div class="flex flex-col text-sm">
-                    <span>Último lido</span>
-                    <input type="text" disabled class="h-12 outline-1
-                    w-auto outline-none border-b border-pure-white rounded-md shadow-gataticos-shadow
-                    focus:border focus:border-slate-600 ease-in-out duration-200
-                    " v-model="barStore.codebar">
-                </div> -->
                 <BarCode />
+                <!-- <BarCode2 /> -->
             </div>
         </div>
     </div>

@@ -27,13 +27,26 @@
             barStore.codebar=''
         }
     }
+
+    const facingMode = ref<any>('environment')
+    const switchCamera = () => {
+        switch (facingMode.value) {
+            case 'environment': facingMode.value='user'
+                break
+            case 'user': facingMode.value='environment'
+                break
+        }
+    }
     
     const selectedDevice = ref<any>(null)
     const devices = ref<any>([])
+    const allDevices = ref<any>([])
 
     onMounted(async () => {
         const mediaDevices = await navigator.mediaDevices.enumerateDevices()
         const videoDevices = mediaDevices.filter(({ kind }) => kind === 'videoinput')
+
+        allDevices.value=await navigator.mediaDevices.enumerateDevices()
 
         videoDevices.forEach((device: any, index) => {
             // Adiciona um índice ao objeto do dispositivo
@@ -47,9 +60,10 @@
         }
 
         if (devices.value.length > 1) {
-            selectedDevice.value = devices.value[3]
+            selectedDevice.value = devices.value[devices.value.length - 1]
         }
         console.log(devices)
+        console.log(allDevices.value)
     })
 
     const paintOutline = (detectedCodes: any, ctx: any) => {
@@ -168,15 +182,19 @@
 
 <template>
     <div class="flex flex-col justify-center items-center">
-    <select v-model="selectedDevice" class="p-4 w-full bg-slate-600 text-slate-100 font-semibold tracking-tighter rounded-tr-sm rounded-tl-sm outline-none duration-200 ease-in-out">
+    <!-- <select v-model="selectedDevice" class="p-4 w-full bg-slate-600 text-slate-100 font-semibold tracking-tighter rounded-tr-sm rounded-tl-sm outline-none duration-200 ease-in-out">
         <option v-for="device in devices" :key="device.label" :value="device" class="text-center">
             {{ `Camera ${device.index + 1}` }}
         </option>
-    </select>  
+    </select>   -->
+    <button @click="switchCamera" class="p-4 w-full bg-slate-600 text-slate-100 font-semibold tracking-tighter rounded-tr-sm rounded-tl-sm outline-none duration-200 ease-in-out">
+        <span>Alterar Camera</span>
+        <i class=""></i>
+    </button>
       <p class="error">{{ error }}</p>
-      <div class="w-full min-h-96 flex flex-col justify-start items-center overflow-hidden rounded-bl-sm rounded-br-sm border-solid border-slate-600 border-2">
+      <div class="w-full min-h-52 max-h-52 flex flex-col justify-start items-center overflow-hidden rounded-bl-sm rounded-br-sm border-solid border-slate-600 border-2">
         <qrcode-stream
-          :constraints="{ deviceId: selectedDevice.deviceId }"
+          :constraints="{ deviceId: selectedDevice.deviceId, facingMode }"
           :track="trackFunctionSelected.value"
           :formats="selectedBarcodeFormats"
           @error="onError"
@@ -200,10 +218,30 @@
                 <td>Nenhuma leitura feita.</td>
             </tr>
             <tr v-else v-for="(item, index) in barStore.codeHistory" :key="index" class="flex justify-start duration-200 ease-in" :class="newCodeInserted && index === 0 ? 'bg-green-600 text-slate-100' : ''">
-                <td class="text-xs px-4 py-2 border-t-2 w-full4">{{ item }}</td>
+                <td class="text-xs px-4 py-2 border-t-2 w-full">{{ item }}</td>
             </tr>
         </tbody>
       </table>
+      <!-- <div class="mt-10 w-full flex flex-col">
+        <span class="bg-slate-600 text-slate-100 w-full px-6 py-2 font-semibold tracking-tighter text-center">Dispositivos disponiveis</span>
+        <table>
+            <thead class="text-slate-100 bg-slate-600 text-center">
+                <tr>
+                    <th>Label</th>
+                    <th>Tipo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item, index) in allDevices" :key="index">
+                    <td>{{ item.label }}</td>
+                    <td>{{ item.kind }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="text-center flex-wrap">
+            {{ allDevices }}
+        </div>
+      </div> -->
       <div class="pt-10 w-full flex flex-row justify-center">
         <button class="bg-green-600 text-slate-100 px-6 py-2 rounded-sm font-semibold tracking-tighter w-full">
             Enviar Códigos

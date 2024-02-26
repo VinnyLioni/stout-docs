@@ -8,10 +8,11 @@ export const useBarStore = defineStore('barStore', () => {
     const codebar = ref<any>()
     const codeHistory = ref<Array<any>>([])
 
-    const showToast = (type, message) => {
-        toast[type](message)
-    }
+    type ToastType = 'success' | 'error' | 'info' | 'warning';
 
+    const showToast = (type: ToastType, message: string) => {
+        toast[type](message);
+    }
     return {
         codebar,
         codeHistory,

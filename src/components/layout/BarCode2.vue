@@ -31,6 +31,8 @@
         if (devices.value.length > 1) {
             selectedDevice.value = devices.value[1]
         }
+
+        console.log(devices)
     })
       
     const paintOutline = (detectedCodes: any, ctx: any) => {
