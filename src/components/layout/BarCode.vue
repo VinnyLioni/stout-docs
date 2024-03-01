@@ -222,26 +222,6 @@
             </tr>
         </tbody>
       </table>
-      <!-- <div class="mt-10 w-full flex flex-col">
-        <span class="bg-slate-600 text-slate-100 w-full px-6 py-2 font-semibold tracking-tighter text-center">Dispositivos disponiveis</span>
-        <table>
-            <thead class="text-slate-100 bg-slate-600 text-center">
-                <tr>
-                    <th>Label</th>
-                    <th>Tipo</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(item, index) in allDevices" :key="index">
-                    <td>{{ item.label }}</td>
-                    <td>{{ item.kind }}</td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="text-center flex-wrap">
-            {{ allDevices }}
-        </div>
-      </div> -->
       <div class="pt-10 w-full flex flex-row justify-center">
         <button class="bg-green-600 text-slate-100 px-6 py-2 rounded-sm font-semibold tracking-tighter w-full">
             Enviar Códigos
