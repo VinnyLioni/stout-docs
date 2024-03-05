@@ -30,11 +30,12 @@
 
     const facingMode = ref<any>('environment')
     const switchCamera = () => {
+        loading.value=true
         switch (facingMode.value) {
             case 'environment': facingMode.value='user'
-                break
+            break
             case 'user': facingMode.value='environment'
-                break
+            break
         }
     }
     
@@ -178,54 +179,52 @@
         }
     }
 
+    const loading = ref<boolean>(true)
+
+    const loadingCamera = () => {
+        loading.value = false
+        console.log(loading.value)
+    }
+
 </script>
 
 <template>
-    <div class="flex flex-col justify-center items-center">
-    <!-- <select v-model="selectedDevice" class="p-4 w-full bg-slate-600 text-slate-100 font-semibold tracking-tighter rounded-tr-sm rounded-tl-sm outline-none duration-200 ease-in-out">
-        <option v-for="device in devices" :key="device.label" :value="device" class="text-center">
-            {{ `Camera ${device.index + 1}` }}
-        </option>
-    </select>   -->
-    <button @click="switchCamera" class="p-4 w-full bg-slate-600 text-slate-100 font-semibold tracking-tighter rounded-tr-sm rounded-tl-sm outline-none duration-200 ease-in-out">
-        <span>Alterar Camera</span>
-        <i class=""></i>
-    </button>
-      <p class="error">{{ error }}</p>
-      <div class="w-full min-h-52 max-h-52 flex flex-col justify-start items-center overflow-hidden rounded-bl-sm rounded-br-sm border-solid border-slate-600 border-2">
-        <qrcode-stream
-          :constraints="{ deviceId: selectedDevice.deviceId, facingMode }"
-          :track="trackFunctionSelected.value"
-          :formats="selectedBarcodeFormats"
-          @error="onError"
-          @detect="onDetect"
-          v-if="selectedDevice !== null"
-        />
-        <p v-else class="text-red-800">
-            Não há Câmeras disponíveis nesse dispositivo.
-        </p>
-        <!-- <button class="p-4 mt-2 w-full bg-slate-600 text-slate-100">Alterar camera</button> -->
-      </div>
-      <table class="w-full mt-4">
-        <thead class="w-full flex">
-            <tr class="w-full bg-slate-600 text-slate-100 rounded-tr-sm rounded-tl-sm py-4 flex justify-center">
-                <!-- <th class="mr-auto w-2/12">Seq.</th> -->
-                <th class="w-full text-sm">Lista de Códigos</th>
-            </tr>
-        </thead>
-        <tbody class="full flex flex-col border-solid border-slate-600 border-[1px] rounded-bl-sm rounded-br-sm">
-            <tr v-if="barStore.codeHistory.length <= 0" class="flex justify-center text-sm text-slate-600 py-2">
-                <td>Nenhuma leitura feita.</td>
-            </tr>
-            <tr v-else v-for="(item, index) in barStore.codeHistory" :key="index" class="flex justify-start duration-200 ease-in" :class="newCodeInserted && index === 0 ? 'bg-green-600 text-slate-100' : ''">
-                <td class="text-xs px-4 py-2 border-t-2 w-full">{{ item }}</td>
-            </tr>
-        </tbody>
-      </table>
-      <div class="pt-10 w-full flex flex-row justify-center">
-        <button class="bg-green-600 text-slate-100 px-6 py-2 rounded-sm font-semibold tracking-tighter w-full">
-            Enviar Códigos
-        </button>
-      </div>
+    <div class="flex flex-col justify-center items-center w-screen px-1">
+        <p class="error">{{ error }}</p>
+        <div class="min-h-52 max-h-52 flex flex-col justify-start items-center overflow-hidden rounded-bl-sm rounded-br-sm border-solid border-slate-600 border-[1px] w-full">
+            <button @click="switchCamera" :class="loading ? 'text-slate-800' : ''" class="fixed text-slate-100 z-20 duration-200 rounded-full right-6 top-32">
+                <i class="fas fa-camera-rotate text-2xl"></i>
+            </button>
+            <qrcode-stream
+                :constraints="{ deviceId: selectedDevice.deviceId, facingMode }"
+                :track="trackFunctionSelected.value"
+                :formats="selectedBarcodeFormats"
+                @error="onError"
+                @detect="onDetect"
+                @camera-on="loadingCamera"
+                v-if="selectedDevice !== null"
+            >
+                <transition name="fade">
+                    <div v-if="loading" class="text-slate-800 flex flex-row justify-center items-center h-full">
+                        <i class="fas fa-circle-notch fa-spin text-5xl"></i>
+                    </div>
+                </transition>
+            </qrcode-stream>
+            <p v-else class="text-red-800 flex w-full h-full items-center justify-center text-center">
+                Não há Câmeras disponíveis nesse dispositivo.
+            </p>
+        </div>
     </div>
-  </template>
+</template>
+
+<style>
+        .fade-enter-active,
+    .fade-leave-active {
+        transition: opacity 0.1s ease;
+    }
+
+    .fade-enter-from,
+    .fade-leave-to {
+        opacity: 0;
+    }
+</style>
