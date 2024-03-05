@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import NfReader from "../pages/NfReader.vue";
 import HomePage from "../pages/HomePage.vue";
 import ObjIdentify from "../pages/ObjIdentify.vue";
+import DailyNotes from '../pages/DailyNotes.vue'
 
 const routes = [
   {
@@ -19,6 +20,11 @@ const routes = [
     path: '/identificador',
     name: 'identifier',
     component: ObjIdentify
+  },
+  {
+    path: '/notas',
+    name: 'notes',
+    component: DailyNotes
   }
 ];
 

@@ -7,6 +7,8 @@
 
     const newCodeInserted = ref<boolean>(false)
 
+    const emits = defineEmits(['codeDetected'])
+
     const clearNewCodeInserted = () => {
         setTimeout(() => {
             newCodeInserted.value=false
@@ -23,6 +25,8 @@
             clearNewCodeInserted()
             barStore.showToast('success', `Código ${barStore.codebar} lido com sucesso.`)
             console.log(barStore.codeHistory)
+
+            emits('codeDetected', firstCode)
         } else {
             barStore.codebar=''
         }
@@ -50,7 +54,6 @@
         allDevices.value=await navigator.mediaDevices.enumerateDevices()
 
         videoDevices.forEach((device: any, index) => {
-            // Adiciona um índice ao objeto do dispositivo
             ;;
             device.index = index
             devices.value.push(device)
@@ -191,8 +194,8 @@
 <template>
     <div class="flex flex-col justify-center items-center w-screen px-1">
         <p class="error">{{ error }}</p>
-        <div class="min-h-52 max-h-52 flex flex-col justify-start items-center overflow-hidden rounded-bl-sm rounded-br-sm border-solid border-slate-600 border-[1px] w-full">
-            <button @click="switchCamera" :class="loading ? 'text-slate-800' : ''" class="fixed text-slate-100 z-20 duration-200 rounded-full right-6 top-32">
+        <div class="relative h-52 flex flex-col justify-start items-center overflow-hidden rounded-bl-sm rounded-br-sm border-solid border-slate-600 border-[1px] w-full duration-200">
+            <button @click="switchCamera" :class="loading ? 'text-slate-800' : ''" class="absolute text-slate-100 z-20 duration-200 rounded-full right-6 top-6">
                 <i class="fas fa-camera-rotate text-2xl"></i>
             </button>
             <qrcode-stream
