@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import BarCode from '../components/layout/BarCode.vue';
     import MainButton from '../components/layout/MainButton.vue';  
-
+    import router from '../router/router';
     import { useBarStore } from '../store/barcode';
 
     const barStore = useBarStore()
@@ -16,6 +16,10 @@
 
     const clearData = () => {
         barStore.clearData()
+    }
+
+    const selectNote = (item: string) => {
+        router.push({ name: 'identifier', params: { numeroNota: item, idnfsai: barStore.numbernf}})
     }
 
 </script>
@@ -62,7 +66,7 @@
             </TransitionGroup>
         </div>
         <div class="flex flex-row mt-auto w-full rounded-sm my-4">
-            <MainButton title="identificar pacotes" :class="barStore.fetchednf ? '' : 'bg-slate-500 text-slate-300'" customClass="duration-200 ease-in"/>
+            <MainButton title="identificar pacotes" :class="barStore.fetchednf ? '' : 'bg-slate-500 text-slate-300'" customClass="duration-200 ease-in" @click="selectNote(barStore.codebar)"/>
             <MainButton title="retornar" customClass="bg-slate-600" @click="clearData"/>
         </div>
     </div>

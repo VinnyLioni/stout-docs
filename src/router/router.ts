@@ -17,9 +17,10 @@ const routes = [
     component: HomePage
   },
   {
-    path: '/identificador',
+    path: '/identificador/:numeroNota',
     name: 'identifier',
-    component: ObjIdentify
+    component: ObjIdentify,
+    props: true
   },
   {
     path: '/notas',
