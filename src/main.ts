@@ -5,9 +5,6 @@ import router from './router/router.ts'
 import { createPinia } from 'pinia'
 import Toast, { PluginOptions, POSITION } from 'vue-toastification'
 import "vue-toastification/dist/index.css";
-
-// import './style/tailwind.css'
-// import "./assets/fontawesome/all.js";
 import './assets/fontawesome/all.js'
 
 const app = createApp(App)

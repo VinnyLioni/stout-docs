@@ -1,16 +1,13 @@
 <script setup lang="ts">
-    import { useRoute } from 'vue-router';
     import router from '../router/router';
-import { onMounted } from 'vue';
+    import { onMounted } from 'vue';
 
-    const route = useRoute()
 
     const changeRoute = (payload: string) => {
         router.push({ name: payload})
     }
 
     onMounted(() => {
-        console.log(route.name)
     })
 
 

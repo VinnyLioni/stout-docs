@@ -14,7 +14,6 @@
     const openSure = (rastreio: number) => {
         sureToDelete.value=true
         selectedRastreio.value=rastreio
-        console.log(selectedRastreio.value)
     }
 
     const deleteTrack = async () => {
@@ -22,9 +21,7 @@
             await barStore.wipeTrack(selectedRastreio.value)
             await loadTracks()
             sureToDelete.value=false
-        } else (
-            console.log(selectedRastreio.value)
-        )
+        } 
     }
 
     interface TrackData {
@@ -46,7 +43,6 @@
                 rastreio: barStore.objcode
             };
             await postTrack(trackData);
-            console.log(trackData)
             await loadTracks()
         } else {
             console.error("O campo rastreio não está preenchido.");
@@ -59,18 +55,15 @@
             await Promise.all(numeroNota.map(async (numero: string) => {
                 await barStore.fetchTracker(numero)
                 fetchedTrack.value=barStore.fetchedTrack
-                console.log(fetchedTrack.value)
             }))
         } else {
             await barStore.fetchTracker(numeroNota)
             fetchedTrack.value=barStore.fetchedTrack
-            console.log(fetchedTrack.value)
         }
     }
 
     onMounted(async () => {
         await loadTracks()
-        console.log(barStore.numbernf)
     })
 
 </script>

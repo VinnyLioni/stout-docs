@@ -19,12 +19,10 @@
         if (detectedCodes.length > 0) {
             const firstCode = detectedCodes[0].rawValue
             barStore.codebar = firstCode
-            console.log('codigos', barStore.codebar)
             barStore.codeHistory.unshift(firstCode)
             newCodeInserted.value=true
             clearNewCodeInserted()
             barStore.showToast('success', `Código ${barStore.codebar} lido com sucesso.`)
-            console.log(barStore.codeHistory)
 
             emits('codeDetected', firstCode)
         } else {
@@ -66,8 +64,6 @@
         if (devices.value.length > 1) {
             selectedDevice.value = devices.value[devices.value.length - 1]
         }
-        console.log(devices)
-        console.log(allDevices.value)
     })
 
     const paintOutline = (detectedCodes: any, ctx: any) => {
@@ -163,20 +159,20 @@
         error.value = `[${err.name}]: `
     
         if (err.name === 'NotAllowedError') {
-        error.value += 'you need to grant camera access permission'
+        error.value += 'Dê as permissões para o navegador acessar a câmera'
         } else if (err.name === 'NotFoundError') {
-        error.value += 'no camera on this device'
+        error.value += 'Não há cameras disponíveis no dispositivo'
         } else if (err.name === 'NotSupportedError') {
-        error.value += 'secure context required (HTTPS, localhost)'
+        error.value += 'Acesso seguro necessário (HTTPS, localhost)'
         } else if (err.name === 'NotReadableError') {
-        error.value += 'is the camera already in use?'
+        error.value += 'A Camera já está em uso?'
         } else if (err.name === 'OverconstrainedError') {
-        error.value += 'installed cameras are not suitable'
+        error.value += 'As câmeras não são utlizáveis.'
         } else if (err.name === 'StreamApiNotSupportedError') {
-        error.value += 'Stream API is not supported in this browser'
+        error.value += 'Esse navegador não suporta essa função.'
         } else if (err.name === 'InsecureContextError') {
         error.value +=
-            'Camera access is only permitted in secure context. Use HTTPS or localhost rather than HTTP.'
+            'Acesso à câmera é permitido apenas em contexto seguro. Utilize HTTPS ou localhost em vez de HTTP.'
         } else {
         error.value += err.message
         }
@@ -186,7 +182,6 @@
 
     const loadingCamera = () => {
         loading.value = false
-        console.log(loading.value)
     }
 
 </script>

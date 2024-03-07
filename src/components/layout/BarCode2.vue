@@ -184,7 +184,6 @@
 
     const loadingCamera = () => {
         loading.value = false
-        console.log(loading.value)
     }
 
 </script>

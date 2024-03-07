@@ -35,10 +35,7 @@ export const useBarStore = defineStore('barStore', () => {
             }))
             fetchednf.value = mappedNf
             numbernf.value = mappedNf.length > 0 ? mappedNf[0].idnfsai : null;
-            console.log(numbernf.value, 'idnfsai')
-            console.log('mappedNf', mappedNf)
-            console.log(fetchednf.value)
-            console.log(result)
+
         } catch (error) {
             console.error(error)
         } finally {
@@ -81,8 +78,7 @@ export const useBarStore = defineStore('barStore', () => {
     
             const filtrados = fetchedData.filter((item: NFItem) => item.dt.substring(0, 10) >= startDate && item.dt.substring(0, 10) <= endDate);
             allNotes.value = filtrados;
-            console.log(allNotes.value)
-            console.log(filtrados)
+
         } catch(error: any) {
             if (error.response) {
                 console.error("Erro ao receber resposta do servidor:", error.response.status);
@@ -117,7 +113,6 @@ export const useBarStore = defineStore('barStore', () => {
             const listrastreios: T[] = mappedTrack.map(item => item.listrastreios).flat();
             fetchedTrack.value = listrastreios;
             
-            console.log('rastreios', fetchedTrack.value, payload);
         } catch(e) {
             console.error(e);
         }

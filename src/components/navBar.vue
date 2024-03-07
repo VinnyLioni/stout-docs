@@ -15,7 +15,6 @@
     })
 
     onMounted(() => {
-        console.log(showButton.value)
     })
 
 </script>
