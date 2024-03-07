@@ -4,37 +4,70 @@
     import { useBarStore } from '../../store/barcode'
 
     const barStore = useBarStore()
+
+    const newCodeInserted = ref<boolean>(false)
+
+    const emits = defineEmits(['codeDetected'])
+
+    // metodos
+
+    const clearNewCodeInserted = () => {
+        setTimeout(() => {
+            newCodeInserted.value=false
+        }, 1000)
+    }
       
     const onDetect = (detectedCodes: any) => {
         if (detectedCodes.length > 0) {
-            const firstCode = detectedCodes[0].rawValue
-            barStore.codebar=firstCode
+            barStore.objcode = detectedCodes[0].rawValue
+            barStore.codeHistory.unshift(barStore.objcode)
+            newCodeInserted.value=true
+            clearNewCodeInserted()
+            barStore.showToast('success', `Código ${barStore.objcode} lido com sucesso.`)
+            emits('codeDetected', barStore.objcode)
         } else {
-            barStore.codebar=''
+            barStore.objcode=''
+        }
+    }
+
+    // config da lib
+
+    const facingMode = ref<any>('environment')
+    const switchCamera = () => {
+        loading.value=true
+        switch (facingMode.value) {
+            case 'environment': facingMode.value='user'
+            break
+            case 'user': facingMode.value='environment'
+            break
         }
     }
     
     const selectedDevice = ref<any>(null)
     const devices = ref<any>([])
-    // const changeCamera = ref<boolean>(false)
-    
+    const allDevices = ref<any>([])
+
     onMounted(async () => {
-        devices.value = (await navigator.mediaDevices.enumerateDevices()).filter(
-        ({ kind }) => kind === 'videoinput'
-        )
-    
+        const mediaDevices = await navigator.mediaDevices.enumerateDevices()
+        const videoDevices = mediaDevices.filter(({ kind }) => kind === 'videoinput')
+
+        allDevices.value=await navigator.mediaDevices.enumerateDevices()
+
+        videoDevices.forEach((device: any, index) => {
+            ;;
+            device.index = index
+            devices.value.push(device)
+        })
+
         if (devices.value.length > 0) {
             selectedDevice.value = devices.value[0]
-            console.log(devices.value)
-        }
-        
-        if (devices.value.length > 1) {
-            selectedDevice.value = devices.value[1]
         }
 
-        console.log(devices)
+        if (devices.value.length > 1) {
+            selectedDevice.value = devices.value[devices.value.length - 1]
+        }
     })
-      
+
     const paintOutline = (detectedCodes: any, ctx: any) => {
         for (const detectedCode of detectedCodes) {
         const [firstPoint, ...otherPoints] = detectedCode.cornerPoints
@@ -95,27 +128,27 @@
     const trackFunctionSelected = ref(trackFunctionOptions[1])
   
     const barcodeFormats = ref<any>({
-        aztec: true,
+        aztec: false,
         code_128: true,
-        code_39: true,
-        code_93: true,
-        codabar: true,
-        databar: true,
-        databar_expanded: true,
-        data_matrix: true,
-        dx_film_edge: true,
+        code_39: false,
+        code_93: false,
+        codabar: false,
+        databar: false,
+        databar_expanded: false,
+        data_matrix: false,
+        dx_film_edge: false,
         ean_13: true,
-        ean_8: true,
-        itf: true,
-        maxi_code: true,
-        micro_qr_code: true,
-        pdf417: true,
+        ean_8: false,
+        itf: false,
+        maxi_code: false,
+        micro_qr_code: false,
+        pdf417: false,
         qr_code: true,
-        rm_qr_code: true,
-        upc_a: true,
-        upc_e: true,
-        linear_codes: true,
-        matrix_codes: true
+        rm_qr_code: false,
+        upc_a: false,
+        upc_e: false,
+        linear_codes: false,
+        matrix_codes: false
     })
 
     const selectedBarcodeFormats = computed(() => {
@@ -147,40 +180,52 @@
         }
     }
 
-    const facingMode = ref('environment')
+    const loading = ref<boolean>(true)
 
-    const switchCamera = () => {
-        switch (facingMode.value) {
-            case 'environment': facingMode.value='user'
-                break
-            case 'user': facingMode.value='environment'
-                break
-        }
+    const loadingCamera = () => {
+        loading.value = false
+        console.log(loading.value)
     }
 
 </script>
 
 <template>
-    <div class="flex flex-col justify-center items-center">
-    <select v-model="selectedDevice" class="m-2 p-4">
-        <option v-for="device in devices" :key="device.label" :value="device">
-        {{ device.label }}
-        </option>
-    </select>  
-      <p class="error">{{ error }}</p>
-      <div class="w-full flex justify-center items-center">
-        <qrcode-stream
-          :constraints="{ deviceId: selectedDevice.deviceId, facingMode }"
-          :track="trackFunctionSelected.value"
-          :formats="selectedBarcodeFormats"
-          @error="onError"
-          @detect="onDetect"
-          v-if="selectedDevice !== null"
-        />
-        <p v-else class="text-red-800">
-            Não há Câmeras disponíveis nesse dispositivo.
-        </p>
-        <button @click="switchCamera">Alterar camera</button>
-      </div>
+    <div class="flex flex-col justify-center items-center w-screen px-1">
+        <p class="error">{{ error }}</p>
+        <div class="relative h-52 flex flex-col justify-start items-center overflow-hidden rounded-bl-sm rounded-br-sm border-solid border-slate-600 border-[1px] w-full duration-200">
+            <button @click="switchCamera" :class="loading ? 'text-slate-800' : ''" class="absolute text-slate-100 z-20 duration-200 rounded-full right-6 top-6">
+                <i class="fas fa-camera-rotate text-2xl"></i>
+            </button>
+            <qrcode-stream
+                :constraints="{ deviceId: selectedDevice.deviceId, facingMode }"
+                :track="trackFunctionSelected.value"
+                :formats="selectedBarcodeFormats"
+                @error="onError"
+                @detect="onDetect"
+                @camera-on="loadingCamera"
+                v-if="selectedDevice !== null"
+            >
+                <transition name="fade">
+                    <div v-if="loading" class="text-slate-800 flex flex-row justify-center items-center h-full">
+                        <i class="fas fa-circle-notch fa-spin text-5xl"></i>
+                    </div>
+                </transition>
+            </qrcode-stream>
+            <p v-else class="text-red-800 flex w-full h-full items-center justify-center text-center">
+                Não há Câmeras disponíveis nesse dispositivo.
+            </p>
+        </div>
     </div>
-  </template>
+</template>
+
+<style>
+        .fade-enter-active,
+    .fade-leave-active {
+        transition: opacity 0.1s ease;
+    }
+
+    .fade-enter-from,
+    .fade-leave-to {
+        opacity: 0;
+    }
+</style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { onMounted, ref } from 'vue';
-    import BarCode from '../components/layout/BarCode.vue';
+    import BarCode2 from '../components/layout/BarCode2.vue';
     import MainButton from '../components/layout/MainButton.vue';
     import { useBarStore } from '../store/barcode';
     import { useRoute } from 'vue-router';
@@ -9,9 +9,22 @@
     const barStore = useBarStore()
     const fetchedTrack = ref<any>()
 
+    const selectedRastreio=ref<number>(0)
     const sureToDelete = ref<boolean>(false)
-    const openSure = () => {
+    const openSure = (rastreio: number) => {
         sureToDelete.value=true
+        selectedRastreio.value=rastreio
+        console.log(selectedRastreio.value)
+    }
+
+    const deleteTrack = async () => {
+        if (selectedRastreio.value) {
+            await barStore.wipeTrack(selectedRastreio.value)
+            await loadTracks()
+            sureToDelete.value=false
+        } else (
+            console.log(selectedRastreio.value)
+        )
     }
 
     interface TrackData {
@@ -20,28 +33,44 @@
         rastreio: string;
     }
 
-    const trackData: TrackData = {
-        idrastreio: null,
-        idnfsai: barStore.numbernf,
-        rastreio: barStore.codebar
+    const postTrack = async (payload: TrackData) => {
+        await barStore.createTrack(payload)
+        await loadTracks()
     }
 
-    const postTrack = async () => {
-        await barStore.createTrack(trackData)
-        console.log(trackData, 'conteúdo post')
+    const handleCodeDetected = async () => {
+        if (barStore.objcode) {
+            const trackData: TrackData = {
+                idrastreio: null,
+                idnfsai: barStore.numbernf,
+                rastreio: barStore.objcode
+            };
+            await postTrack(trackData);
+            console.log(trackData)
+            await loadTracks()
+        } else {
+            console.error("O campo rastreio não está preenchido.");
+        }
     }
 
-    onMounted(async () => {
+    const loadTracks = async () => { 
         const numeroNota = route.params.numeroNota;
         if (Array.isArray(numeroNota)) {
             await Promise.all(numeroNota.map(async (numero: string) => {
                 await barStore.fetchTracker(numero)
                 fetchedTrack.value=barStore.fetchedTrack
+                console.log(fetchedTrack.value)
             }))
         } else {
             await barStore.fetchTracker(numeroNota)
             fetchedTrack.value=barStore.fetchedTrack
+            console.log(fetchedTrack.value)
         }
+    }
+
+    onMounted(async () => {
+        await loadTracks()
+        console.log(barStore.numbernf)
     })
 
 </script>
@@ -53,22 +82,22 @@
             <span class="capitalize tracking-tighter font-semibold text-lg ml-2">identificador de pacotes</span>
         </div>
         <div class="flex flex-col items-center mx-2 justify-center w-full">
-            <BarCode @codeDetected="postTrack()"/>
+            <BarCode2 @codeDetected="handleCodeDetected"/>
         </div>
-        <div class="flex flex-col w-full justify-center items-center p-1 rounded-sm">
+        <div class="flex flex-col w-full h-full justify-center items-center p-1 rounded-sm">
             <table class="bg-slate-100 flex flex-col w-full border-[1px] rounded-sm m-1 shadow-md border-slate-600">
                 <thead class="flex">
-                    <tr class="w-full bg-slate-600 flex flex-row px-2 text-slate-100">
+                    <tr class="w-full bg-slate-600 flex flex-row px-2 py-3 text-slate-100">
                         <th class="w-3/12 text-start">ID</th>
                         <th class="w-8/12 text-start">Rastreio</th>
                     </tr>
                 </thead>
-                <tbody class="flex">
+                <tbody class="flex flex-col h-72 overflow-scroll">
                     <tr v-for="(item, index) in fetchedTrack" :key="index" class="flex flex-row w-full text-start px-2 p-1 tracking-tighter font-medium">
                         <td class="w-3/12">{{ item.idrastreio }}</td>
                         <td class="w-8/12">{{ item.rastreio }}</td>
                         <td class="w-1/12 flex justify-end">
-                            <button @click="openSure()">
+                            <button @click="openSure(item.idrastreio)">
                                 <i class="fas fa-trash-can text-lg"></i>
                             </button>
                         </td>
@@ -96,7 +125,7 @@
                             </div>
                         </header>
                         <main class="flex flex-row py-2 mt-6">
-                            <MainButton title="confirmar" customClass="bg-red-700 h-12"/>
+                            <MainButton title="confirmar" customClass="bg-red-700 h-12" @click="deleteTrack()" />
                             <MainButton title="cancelar" customClass="bg-slate-700 h-12" @click="sureToDelete=false"/>
                         </main>
                     </div>

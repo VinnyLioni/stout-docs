@@ -26,9 +26,9 @@ import router from '../router/router';
         barStore.fetchAllNotes(startDate.value, endDate.value)
     }
  
-
-    const selectNote = (item: string) => {
+    const selectNote = (item: string, note: number) => {
         router.push({ name: 'identifier', params: { numeroNota: item}})
+        barStore.numbernf=note
     }
 
     onMounted(() => {
@@ -53,7 +53,7 @@ import router from '../router/router';
             </button>
         </header>
         <main class="w-full flex flex-col items-center">
-            <div v-if="barStore.allNotes" class="bg-slate-100 flex flex-col w-full text-xs border-[1px] rounded-sm m-1 shadow-md border-slate-600" v-for="(item, index) in barStore.allNotes" :key="index" @click="selectNote(item.nfechave)">
+            <div v-if="barStore.allNotes" class="bg-slate-100 flex flex-col w-full text-xs border-[1px] rounded-sm m-1 shadow-md border-slate-600" v-for="(item, index) in barStore.allNotes" :key="index" @click="selectNote(item.nfechave, item.idnfsai)">
                 <header class="flex flex-row w-full pt-1 px-1">
                     <div class="">
                         <span class="mr-1">NF:</span>
