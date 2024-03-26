@@ -14,16 +14,21 @@
 </script>
 
 <template>
-    <div class="w-full p-1 flex flex-col items-center justify-start h-full">
-        <header class="py-4 flex w-full justify-center items-center">
-            <span class="capitalize text-xl font-semibold -tracking-widest text-slate-800">menu principal</span>
-        </header>
+    <div class="w-full flex flex-col items-center justify-start h-full">
         <div class="w-full flex flex-col">
-            <button class="bg-slate-600 text-slate-100 px-4 py-2 w-full my-1 h-20 rounded-sm" @click="changeRoute('notes')">
-                <span class="capitalize">notas emitidas no dia</span>
+            <button class="bg-stout-gray text-slate-700 px-4 py-2 w-full h-20 rounded-sm font-medium tracking-tighter flex flex-row items-center justify-center" @click="changeRoute('notes')">
+                <span class="capitalize flex-1">notas fiscais por período</span>
+                <div class="flex flex-row items-center relative pt-2 ml-auto">
+                    <div class="content-[''] w-3 h-[2px] absolute bottom-2 bg-slate-600 rounded-l rotate-45"></div>
+                    <div class="content-[''] w-3 h-[2px] bg-slate-600 -bottom-2 rounded-l -rotate-45"></div>
+                </div>
             </button>
-            <button class="bg-slate-600 text-slate-100 px-4 py-2 w-full h-20 rounded-sm my-1" @click="changeRoute('reader')">
-                <span class="capitalize">identificar pacotes</span>
+            <button class="bg-stout-gray text-slate-700 px-4 py-2 w-full h-20 rounded-sm font-medium tracking-tighter flex flex-row items-center justify-center" @click="changeRoute('reader')">
+                <span class="capitalize flex-1">identificar pacotes</span>
+                <div class="flex flex-row items-center relative pt-2 ml-auto">
+                    <div class="content-[''] w-3 h-[2px] absolute bottom-2 bg-slate-600 rounded-l rotate-45"></div>
+                    <div class="content-[''] w-3 h-[2px] bg-slate-600 -bottom-2 rounded-l -rotate-45"></div>
+                </div>
             </button>
         </div>
     </div>

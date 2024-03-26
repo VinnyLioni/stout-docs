@@ -23,7 +23,6 @@
             barStore.codeHistory.unshift(barStore.objcode)
             newCodeInserted.value=true
             clearNewCodeInserted()
-            barStore.showToast('success', `Código ${barStore.objcode} lido com sucesso.`)
             emits('codeDetected', barStore.objcode)
         } else {
             barStore.objcode=''
@@ -189,9 +188,9 @@
 </script>
 
 <template>
-    <div class="flex flex-col justify-center items-center w-screen px-1">
+    <div class="flex flex-col justify-center items-center w-screen">
         <p class="error">{{ error }}</p>
-        <div class="relative h-52 flex flex-col justify-start items-center overflow-hidden rounded-bl-sm rounded-br-sm border-solid border-slate-600 border-[1px] w-full duration-200">
+        <div class="relative h-52 flex flex-col justify-start items-center overflow-hidden shadow-md w-full duration-200">
             <button @click="switchCamera" :class="loading ? 'text-slate-800' : ''" class="absolute text-slate-100 z-20 duration-200 rounded-full right-6 top-6">
                 <i class="fas fa-camera-rotate text-2xl"></i>
             </button>
@@ -204,8 +203,8 @@
                 @camera-on="loadingCamera"
                 v-if="selectedDevice !== null"
             >
-                <transition name="fade">
-                    <div v-if="loading" class="text-slate-800 flex flex-row justify-center items-center h-full">
+            <transition name="page-slide" mode="out-in">
+                    <div v-if="loading" class="text-slate-800 flex flex-row justify-center items-center h-full bg-stout-gray">
                         <i class="fas fa-circle-notch fa-spin text-5xl"></i>
                     </div>
                 </transition>

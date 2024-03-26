@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import BarCode from '../components/layout/BarCode.vue';
-    import MainButton from '../components/layout/MainButton.vue';  
+    // import MainButton from '../components/layout/MainButton.vue';  
     import router from '../router/router';
     import { useBarStore } from '../store/barcode';
 
@@ -25,7 +25,7 @@
 </script>
 
 <template>
-    <div class="bg-slate-300 w-full h-full flex flex-col items-center justify-center">
+    <div class="bg-stout-gray w-full h-full flex flex-col items-center justify-center">
         <div class="flex flex-row items-center py-3 justify-center text-slate-800">
             <i class="fas fa-barcode text-lg"></i>
             <span class="ml-2 text-lg font-semibold tracking-tighter capitalize">leitor de notas fiscais</span>
@@ -40,34 +40,44 @@
                     <span v-else>Aguardando Leitura de NF</span>
                 </transition>
             </header>
-            <TransitionGroup name="page-slide">
-                <div v-if="barStore.fetchednf" class="bg-slate-100 flex flex-col w-full text-xs border-[1px] rounded-sm m-2 shadow-md border-slate-600" v-for="(item, index) in barStore.fetchednf" :key="index">
-                    <header class="flex flex-row w-full pt-1 px-1">
-                        <div class="">
-                            <span class="mr-1">NF:</span>
-                            <span>{{ item.idnfsai }}</span>
-                        </div>
-                        <div class="ml-auto">
-                            <span class="mr-1">Data:</span>
-                            <span>{{ formatDate(item.dt) }}</span>
-                        </div>
-                    </header>
-                    <main class="flex flex-col items-start p-1 gap-1">
+            <div class="flex flex-col w-full items-center justify-start relative">
+                <Transition name="page-slide" mode="out-in">
+                    <div v-if="barStore.loading" class="w-full flex flex-row items-center justify-center p-8 absolute top-20">
+                        <i class="fas fa-circle-notch fa-spin text-3xl"></i>
+                    </div>
+                    <div v-else class="bg-slate-100 flex flex-col items-center justify-start w-full text-xs rounded-sm m-2 shadow-md border-slate-600">
+                        <div v-if="barStore.fetchednf" class="px-2 py-1 flex flex-col justify-around" v-for="(item, index) in barStore.fetchednf" :key="index">
+                            <header class="flex flex-row w-full">
+                                <div class="">
+                                    <span class="mr-1 text-slate-800 font-semibold tracking-tighter">NF:</span>
+                                    <span>{{ item.idnfsai }}</span>
+                                </div>
+                            <div class="ml-auto">
+                                <span class="mr-1 text-slate-800 font-semibold tracking-tighter">Data:</span>
+                                <span>{{ formatDate(item.dt) }}</span>
+                            </div>
+                        </header>
                         <div class="flex flex-row items-baseline w-full">
-                            <span class="mr-1">Cliente:</span>
+                            <span class="mr-1 text-slate-800 font-semibold tracking-tighter">Cliente:</span>
                             <span class="ml-auto">{{ item.fantasia }}</span>
                         </div>
                         <div class="flex flex-row items-baseline w-full">
-                            <span class="mr-1">Chave:</span>
+                            <span class="mr-1 text-slate-800 font-semibold tracking-tighter">Chave:</span>
                             <span class="tracking-tighter ml-auto">{{ item.nfechave }}</span>
                         </div>
-                    </main>
+                    </div>
                 </div>
-            </TransitionGroup>
+                </Transition>
+            </div>
         </div>
-        <div class="flex flex-row mt-auto w-full rounded-sm my-4">
-            <MainButton title="identificar pacotes" :class="barStore.fetchednf ? '' : 'bg-slate-500 text-slate-300'" customClass="duration-200 ease-in" @click="selectNote(barStore.codebar)"/>
-            <MainButton title="retornar" customClass="bg-slate-600" @click="clearData"/>
+        <div class="mt-auto"></div>
+        <div class="flex flex-row mt-auto w-full rounded-sm fixed bottom-0 p-1">
+            <button @click="selectNote(barStore.codebar)" :disabled="!barStore.fetchednf" class=" text-slate-100 rounded-l-sm mt-auto py-2 h-12 w-full" :class="barStore.fetchednf ? 'bg-green-600' : 'bg-slate-500 text-slate-300'"> 
+                <span class="capitalize font-medium tracking-tighter">identificar pacotes</span>
+            </button>
+            <button class="bg-slate-500 text-slate-100 rounded-r-sm mt-auto py-2 h-12 w-full" @click="clearData"> 
+                <span class="capitalize font-medium tracking-tighter">retornar</span>
+            </button>
         </div>
     </div>
 </template>

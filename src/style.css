@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 ::-webkit-scrollbar {
-  width: .5rem; 
+  width: .1rem; 
 }
 
 ::-webkit-scrollbar-thumb {
@@ -24,7 +24,7 @@
 
 body {
   height: 100%;
-  background-color: #cfcfcfce;
+  background-color: #f0f0f0;
 }
 
 * {
