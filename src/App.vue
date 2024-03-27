@@ -5,7 +5,7 @@ import MainPage from './views/MainPage.vue';
 
 <template>
   <div class="">
-    <MainPage />
+      <MainPage />
   </div>
 </template>
 

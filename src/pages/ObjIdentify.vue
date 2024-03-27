@@ -3,12 +3,14 @@
     import BarCode2 from '../components/layout/BarCode2.vue';
     import MainButton from '../components/layout/MainButton.vue';
     import { useBarStore } from '../store/barcode';
-    import { useRoute } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
 
+    const router = useRouter()
     const route = useRoute()
     const barStore = useBarStore()
     const fetchedTrack = ref<any>()
     const titleNf = ref<any>()
+    const deleting = ref<boolean>(false)
 
     const selectedRastreio=ref<number>(0)
     const sureToDelete = ref<boolean>(false)
@@ -18,10 +20,17 @@
     }
 
     const deleteTrack = async () => {
+        deleting.value=true
         if (selectedRastreio.value) {
-            await barStore.wipeTrack(selectedRastreio.value)
-            await loadTracks()
-            sureToDelete.value=false
+            try {
+                await barStore.wipeTrack(selectedRastreio.value)
+                await loadTracks()
+            } catch(e) {
+                console.error(e)
+            } finally {
+                deleting.value=false
+                sureToDelete.value=false
+            }
         } 
     }
 
@@ -36,6 +45,17 @@
         await loadTracks()
     }
 
+    const newInserted = ref<boolean>(false)
+
+    const changeInserted = () => {
+        newInserted.value = true;
+        setTimeout(() => {
+            newInserted.value = false;
+        }, 2000);
+    }
+
+    const newTracker = ref<TrackData>()
+
     const handleCodeDetected = async () => {
         if (barStore.objcode) {
             const trackData: TrackData = {
@@ -43,8 +63,17 @@
                 idnfsai: barStore.numbernf,
                 rastreio: barStore.objcode
             };
-            await postTrack(trackData);
-            await loadTracks()
+            try {
+                await postTrack(trackData);
+                newTracker.value=trackData
+                console.log('newTracker', newTracker.value)
+                barStore.showToast('success', `Rastreio ${newTracker.value.rastreio} inserido`)
+                await loadTracks()
+            } catch(e) {
+                console.error(e)
+            } finally {
+                changeInserted()
+            }
         } else {
             console.error("O campo rastreio não está preenchido.");
         }
@@ -57,6 +86,7 @@
             await Promise.all(numeroNota.map(async (numero: string) => {
                 await barStore.fetchTracker(numero)
                 fetchedTrack.value=barStore.fetchedTrack
+                console.log(fetchedTrack.value)
             }))
         } else {
             await barStore.fetchTracker(numeroNota)
@@ -67,6 +97,10 @@
     const formatDate = (dateString: string) => {
         const date = new Date(dateString)
         return date.toLocaleDateString()
+    }
+
+    const goBack = () => {
+        router.go(-1)
     }
 
     onMounted(async () => {
@@ -86,7 +120,7 @@
                     <span class="capitalize tracking-tighter font-semibold text-md ml-2 ">identificador de pacotes</span>
                 </div>
             </div>
-            <div class="w-11/12 bg-slate-100 py-1 px-2 fixed top-[6.8rem] flex flex-col justify-center items-center rounded-sm shadow h-12 duration-200 ease-in">
+            <div class="w-11/12 bg-slate-100 pt-1 pb-2 px-2 absolute top-12 flex flex-col justify-center items-center rounded-sm shadow h-12 duration-200 ease-in">
                 <Transition name="page-slide" mode="out-in">
                     <div class="flex flex-col items-center justify-center px-2 w-full h-12" v-if="barStore.loading">
                         <i class="fas fa-circle-notch fa-spin text-2xl text-slate-500"></i>
@@ -98,13 +132,11 @@
                                 <span class="font-medium tracking-tighter overflow-hidden whitespace-nowrap max-w-full truncate text-xs">{{ item.fantasia }}</span>
                             </div>
                             <div class="ml-auto">
-                                <span class="text-sm">{{ formatDate(item.dt) }}</span>
+                                <span class="text-[0.8rem]">{{ formatDate(item.dt) }}</span>
                             </div>
                         </header>
                         <div class="flex flex-row items-baseline w-full">
-                            <div>
-                                <span class="tracking-tighter ml-auto text-[0.63rem] whitespace-nowrap max-w-full truncate">{{ item.nfechave }}</span>
-                            </div>
+                                <span class="tracking-tighter ml-auto text-[0.75rem] whitespace-nowrap max-w-full truncate">{{ item.nfechave }}</span>
                             <div class="ml-auto">
                                 <span class="text-green-800 font-medium">{{ item.doc }}</span>
                             </div>
@@ -158,7 +190,7 @@
                     </tr>
                 </thead>
                 <tbody class="flex flex-col h-56 overflow-scroll">
-                    <tr v-for="(item, index) in fetchedTrack" :key="index" class="flex flex-row w-full text-sm text-start px-4 py-3 tracking-tighter font-normal">
+                    <tr v-for="(item, index) in fetchedTrack" :key="index" class="flex flex-row w-full text-sm text-start px-4 py-3 tracking-tighter font-normal"  >
                         <td class="w-3/12">{{ item.idrastreio }}</td>
                         <td class="w-8/12">{{ item.rastreio }}</td>
                         <td class="w-1/12 flex justify-end">
@@ -176,13 +208,13 @@
                 <span class="capitalize font-medium tracking-tighter">finalizar</span>
             </button>
             <button class="bg-slate-500 text-slate-100 rounded-r-sm mt-auto py-2 h-12 w-full"> 
-                <span class="capitalize font-medium tracking-tighter">retornar</span>
+                <span class="capitalize font-medium tracking-tighter" @click="goBack">retornar</span>
             </button>
         </footer>
         <Teleport to="body">
             <Transition name="page-slide" mode="out-in">
                 <div class="flex flex-row items-center justify-center fixed top-0 w-full h-full backdrop-blur-sm z-40" v-if="sureToDelete">
-                    <div class=" bg-slate-50 px-4 py-2 shadow-md" >
+                    <div class=" bg-slate-50 px-4 py-2 shadow-md w-10/12" >
                         <header class="w-full flex flex-col items-start">
                             <div class="flex flex-row w-full">
                                 <span class="capitalize text-2xl tracking-tighter font-semibold">tem certeza?</span>
@@ -191,12 +223,24 @@
                                 </button>
                             </div>
                             <div class="w-10/12 flex flex-wrap -mt-1">
-                                <span class="text-xs capitalize text-red-700 font-semibold tracking-tighter">não é possível desfazer a exclusão</span>
+                                <span class="text-xs capitalize text-red-700 font-medium tracking-tighter">não é possível desfazer a exclusão</span>
                             </div>
                         </header>
                         <main class="flex flex-row py-2 mt-6">
-                            <MainButton title="confirmar" customClass="bg-red-700 h-12" @click="deleteTrack()" />
-                            <MainButton title="cancelar" customClass="bg-slate-700 h-12" @click="sureToDelete=false"/>
+                            <MainButton title="" customClass="bg-red-800 rounded-l-sm h-12" @click="deleteTrack()">
+                                <template #free-area>
+                                    <Transition name="fade-slide" mode="out-in">
+                                        <div v-if="!deleting">
+                                            <span class="capitalize font-medium tracking-tighter">Confirmar</span>
+                                        </div>
+                                        <div class="flex flex-row justify-center space-x-1 items-center" v-else>
+                                            <i class="fas fa-circle-notch fa-spin text-sm text-slate-100"></i>
+                                            <span class="capitalize font-medium tracking-tighter">Excluindo</span>
+                                        </div>
+                                    </Transition>
+                                </template>
+                            </MainButton>
+                            <MainButton title="cancelar" customClass="bg-slate-700 rounded-r-sm h-12" @click="sureToDelete=false"/>
                         </main>
                     </div>
                 </div>
@@ -214,8 +258,8 @@
     .page-slide-enter-from,
     .page-slide-leave-to {
         opacity: 0;
-        -webkit-transform: scale(1.1);
-        transform: scale(1.1);
+        -webkit-transform: scale(1.05);
+        transform: scale(1.05);
     }
 
     .fade-enter-active,
@@ -225,6 +269,16 @@
 
     .fade-enter-from,
     .fade-leave-to {
+        opacity: 0;
+    }
+
+    .fade-slide-enter-active,
+    .fade-slide-leave-active {
+        transition: 100ms ease all
+    }
+
+    .fade-slide-enter-from,
+    .fade-slide-leave-to {
         opacity: 0;
     }
 </style>

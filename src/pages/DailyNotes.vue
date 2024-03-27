@@ -13,12 +13,14 @@ import router from '../router/router';
     const day = currentDate.getDate().toString().padStart(2, '0');
     const actualDate = `${year}-${month}-${day}`    
 
-    const startDate = ref<string>(actualDate)
-    const endDate = ref<string>(actualDate)
+    const startDate = ref<any>()
+    const endDate = ref<any>()
 
     const fetchNotes = () => {
         modalOpened.value=false
         barStore.fetchAllNotes(startDate.value, endDate.value)
+        barStore.startDate=startDate.value
+        barStore.endDate=endDate.value
     }
  
     const selectNote = (item: string, note: number) => {
@@ -42,6 +44,13 @@ import router from '../router/router';
 
     onMounted(() => {
         modalOpened.value=true
+        if (!barStore.startDate) {
+            startDate.value=actualDate
+            endDate.value=actualDate
+        } else {   
+            startDate.value=barStore.startDate
+            endDate.value=barStore.endDate
+        }
     })
 
     onUnmounted(() => {

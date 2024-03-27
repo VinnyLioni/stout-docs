@@ -6,6 +6,7 @@
     const barStore = useBarStore()
 
     const newCodeInserted = ref<boolean>(false)
+    const detectionDisabled = ref<boolean>(false)
 
     const emits = defineEmits(['codeDetected'])
 
@@ -14,16 +15,18 @@
     const clearNewCodeInserted = () => {
         setTimeout(() => {
             newCodeInserted.value=false
+            detectionDisabled.value=false
         }, 1000)
     }
       
     const onDetect = (detectedCodes: any) => {
-        if (detectedCodes.length > 0) {
+        if (!detectionDisabled.value && detectedCodes.length > 0) {
             barStore.objcode = detectedCodes[0].rawValue
             barStore.codeHistory.unshift(barStore.objcode)
             newCodeInserted.value=true
             clearNewCodeInserted()
             emits('codeDetected', barStore.objcode)
+            console.log('novo obj', barStore.objcode.value)
         } else {
             barStore.objcode=''
         }
